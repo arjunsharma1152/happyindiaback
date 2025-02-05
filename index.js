@@ -58,15 +58,19 @@ app.get('/fetchData', async (req, res) => {
         // Authenticate
         const authClient = await auth.getClient();
 
-        // Fetch data from Sheet2, cell A1
+        // Fetch data from Sheet2, cells A1 and A2
         const response = await sheets.spreadsheets.values.get({
             auth: authClient,
             spreadsheetId,
-            range: `${sheetName2}!A1`, // Specify the range
+            range: `${sheetName2}!A1:A2`, // Fetch both A1 and A2
         });
 
-        const data = response.data.values ? response.data.values[0][0] : 'No data found';
-        res.status(200).json({ data: data });
+        const values = response.data.values || [];
+        const link = values[0] ? values[0][0] : 'No link found';
+        const title = values[1] ? values[1][0] : 'No title found';
+
+        res.status(200).json({ link, title });
+
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Error fetching data');
